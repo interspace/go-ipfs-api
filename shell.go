@@ -14,7 +14,7 @@ import (
 	"strings"
 	"time"
 
-	files "github.com/mikesun/go-multipart-files"
+	files "github.com/interspace/go-multipart-files"
 	ma "github.com/multiformats/go-multiaddr"
 	manet "github.com/multiformats/go-multiaddr-net"
 	tar "github.com/whyrusleeping/tar-utils"

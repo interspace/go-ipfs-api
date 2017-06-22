@@ -11,7 +11,7 @@ import (
 	"os"
 	"strings"
 
-	files "github.com/mikesun/go-multipart-files"
+	files "github.com/interspace/go-multipart-files"
 )
 
 type Request struct {

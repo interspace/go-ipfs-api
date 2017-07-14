@@ -186,15 +186,15 @@ func (s *Shell) AddLink(target string) (string, error) {
 }
 
 // AddDir adds a directory recursively with all of the files under it
-func (s *Shell) AddDir(dir string) (string, error) {
+func (s *Shell) AddDir(dir string) (map[string]string, error) {
 	stat, err := os.Lstat(dir)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	sf, err := files.NewSerialFile("", dir, stat)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	slf := files.NewSliceFile("", dir, []files.File{sf})
 	reader := files.NewMultiFileReader(slf, true)
@@ -205,32 +205,37 @@ func (s *Shell) AddDir(dir string) (string, error) {
 
 	resp, err := req.Send(s.httpcli)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	defer resp.Close()
 	if resp.Error != nil {
-		return "", resp.Error
+		return nil, resp.Error
 	}
 
+	results := map[string]string{}
 	dec := json.NewDecoder(resp.Output)
-	var final string
 	for {
-		var out object
+		var out struct {
+			Hash string
+			Name string
+		}
 		err = dec.Decode(&out)
 		if err != nil {
 			if err == io.EOF {
 				break
 			}
-			return "", err
+			return nil, err
 		}
-		final = out.Hash
+		if out.Hash != "" {
+			results[out.Name] = out.Hash
+		}
 	}
 
-	if final == "" {
-		return "", errors.New("no results received")
+	if len(results) == 0 {
+		return nil, errors.New("no results received")
 	}
 
-	return final, nil
+	return results, nil
 }
 
 const (
